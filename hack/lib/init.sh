@@ -41,6 +41,7 @@ KUBE_RSYNC_COMPRESS="${KUBE_RSYNC_COMPRESS:-0}"
 
 # Set no_proxy for localhost if behind a proxy, otherwise,
 # the connections to localhost in scripts will time out
+# fyn: brilliant method to inherit system settings
 export no_proxy="127.0.0.1,localhost${no_proxy:+,${no_proxy}}"
 
 # This is a symlink to binaries for "this platform", e.g. build tools.

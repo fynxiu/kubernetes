@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# fyn: env will search environment variable PATH for bash
 
 # Copyright 2014 The Kubernetes Authors.
 #
