@@ -32,6 +32,7 @@
 # If KUBE_GIT_VERSION_FILE, this function will load from that file instead of
 # querying git.
 kube::version::get_version_vars() {
+  # fyn: -n - True if the length of string is non-zero. (6.4 Bash Conditional Expression)
   if [[ -n ${KUBE_GIT_VERSION_FILE-} ]]; then
     kube::version::load_version_vars "${KUBE_GIT_VERSION_FILE}"
     return
@@ -53,11 +54,15 @@ kube::version::get_version_vars() {
     fi
   fi
 
+  # fyn: 这里并未执行，只是给 git 命令附加了 work-tree
   local git=(git --work-tree "${KUBE_ROOT}")
 
+  # fyn: "$VAR^{commit}" will make sure $VAR names an existing object that is a commit-ish (i.e. a commit, or an annotated tag that points at a commit).
+  # fyn: 又见 [@], 值得注意的是 [*] 是不能用来执行的，bash （应该是 bash ）会把整个数组的内容认为是一个可执行程序。
   if [[ -n ${KUBE_GIT_COMMIT-} ]] || KUBE_GIT_COMMIT=$("${git[@]}" rev-parse "HEAD^{commit}" 2>/dev/null); then
     if [[ -z ${KUBE_GIT_TREE_STATE-} ]]; then
       # Check if the tree is dirty.  default to dirty
+      # fyn: --porcelain Give the output in an easy-to-parse format for scripts.
       if git_status=$("${git[@]}" status --porcelain 2>/dev/null) && [[ -z ${git_status} ]]; then
         KUBE_GIT_TREE_STATE="clean"
       else
@@ -66,6 +71,8 @@ kube::version::get_version_vars() {
     fi
 
     # Use git describe to find the version based on tags.
+    # fyn: 这里学习了，|| 短路
+    # fyn: 又学习了，我们本地打上 tag 之后，也会被程序读到的，作者在这里加上 --match 应该是为了让开发人员能够定义自己的 tag？只读取 v 开头的 tag
     if [[ -n ${KUBE_GIT_VERSION-} ]] || KUBE_GIT_VERSION=$("${git[@]}" describe --tags --match='v*' --abbrev=14 "${KUBE_GIT_COMMIT}^{commit}" 2>/dev/null); then
       # This translates the "git describe" to an actual semver.org
       # compatible semantic version that looks something like this:
@@ -77,6 +84,7 @@ kube::version::get_version_vars() {
       # These regexes are painful enough in sed...
       # We don't want to do them in pure shell, so disable SC2001
       # shellcheck disable=SC2001
+      # fyn: 除了第一个`-`，均替换成`.`
       DASHES_IN_VERSION=$(echo "${KUBE_GIT_VERSION}" | sed "s/[^-]//g")
       if [[ "${DASHES_IN_VERSION}" == "---" ]] ; then
         # shellcheck disable=SC2001
