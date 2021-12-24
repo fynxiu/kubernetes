@@ -31,7 +31,9 @@ import (
 // Run creates and executes new kubeadm command
 func Run() error {
 	klog.InitFlags(nil)
+	// fyn: spf13/pflag 支持设置对 flags 的预处理函数, 这里是将 _ 转换为 -
 	pflag.CommandLine.SetNormalizeFunc(cliflag.WordSepNormalizeFunc)
+	// fyn: spf13/pflag 将 go sdk flag 中的 flags 读入，但不覆盖已有的
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 
 	pflag.Set("logtostderr", "true")
