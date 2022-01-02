@@ -106,6 +106,11 @@ kube::version::get_version_vars() {
       # Try to match the "git describe" output to a regex to try to extract
       # the "major" and "minor" versions and whether this is the exact tagged
       # version or whether the tree is between two tagged versions.
+      # fyn: =~ regular expression matching
+      # fyn: An array variable whose members are assigned by the ‘=~’ binary operator
+      # to the [[ conditional command. The element with index 0 is the portion of the 
+      # string matching the entire regular expression. The element with index n is 
+      # the portion of the string matching the nth parenthesized subexpression.
       if [[ "${KUBE_GIT_VERSION}" =~ ^v([0-9]+)\.([0-9]+)(\.[0-9]+)?([-].*)?([+].*)?$ ]]; then
         KUBE_GIT_MAJOR=${BASH_REMATCH[1]}
         KUBE_GIT_MINOR=${BASH_REMATCH[2]}
